@@ -97,7 +97,7 @@ environments:
       url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
   production:
     dataSource:
-      dbCreate: none
+      dbCreate: update
       url: jdbc:h2:./prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
       properties:
         jmxEnabled: true
@@ -133,13 +133,17 @@ grails:
         className: com.objectcomputing.Role
       filterChain:
         chainMap:
+          - pattern: /
+            filters: none
+          - pattern: /index.html
+            filters: none
           - pattern: /assets/**
             filters: none
           - pattern: /**/js/**
             filters: none
           - pattern: /**/css/**
             filters: none
-          - pattern: /**/images/**
+          - pattern: /**/img/**
             filters: none
           - # Stateless chain
             pattern: /api/**
@@ -156,6 +160,9 @@ grails:
               access:
                 - permitAll
             - pattern: /index
+              access:
+                - permitAll
+            - pattern: /index.html
               access:
                 - permitAll
             - pattern: /index.gsp
@@ -176,6 +183,13 @@ grails:
             - pattern: /**/images/**
               access:
                 - permitAll
+            - pattern: /**/img/**
+              access:
+                - permitAll
             - pattern: /**/favicon.ico/**
               access:
                 - permitAll
+---
+grails:
+  resources:
+    pattern: /**

@@ -1,5 +1,7 @@
 package com.objectcomputing
 
+import grails.util.Environment
+
 class UrlMappings {
 
     static mappings = {
@@ -10,7 +12,12 @@ class UrlMappings {
         put "/$controller/$id(.$format)?"(action:"update")
         patch "/$controller/$id(.$format)?"(action:"patch")
 
-        "/"(controller: 'application', action:'index')
+        if ( Environment.current == Environment.PRODUCTION ) {
+            '/'(uri: '/index.html')
+        } else {
+            '/'(controller: 'application', action:'index')
+        }
+
         "500"(view: '/error')
         "404"(view: '/notFound')
     }

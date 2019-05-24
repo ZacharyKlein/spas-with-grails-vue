@@ -16,7 +16,6 @@ group "com.objectcomputing"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
-apply plugin:"war"
 apply plugin:"org.grails.grails-web"
 apply plugin:"com.github.node-gradle.node"
 apply plugin:"org.grails.plugins.views-json"
