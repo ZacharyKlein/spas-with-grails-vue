@@ -78,16 +78,16 @@
 
                 <h1>Library</h1>
 
-                <div v-if="loggedIn" style="width: 100%">
+                <div v-if="accessToken != null" style="width: 100%">
                     <div style="padding: 10px; background: #f3f3f3; height: 50px; ">
-                        <book-create-form :addBook="addBook"/>
+                        <book-create-form :addBook="addBook" :logout="logout"/>
                     </div>
                     <div>
                         <book-list :books="books" :removeBook="removeBook"/>
                     </div>
                 </div>
                 <div v-else style="width: 100%">
-                    <login-form :submitLogin="login" />
+                    <login-form :submitLogin="login"/>
                 </div>
 
 
@@ -152,6 +152,7 @@
     import BookCreateForm from "./book/BookCreateForm";
     import BookList from "./book/BookList";
     import LoginForm from "./login/LoginForm";
+
     export default {
         name: 'Welcome',
         components: {LoginForm, BookList, BookCreateForm},
@@ -161,20 +162,13 @@
                 serverInfo: null,
                 serverURL: process.env.VUE_APP_SERVER_URL,
                 books: [],
-                loggedIn: false
+                accessToken: null
             }
         },
         created() {
             fetch(`${this.$data.serverURL}/application`)
                 .then(response => response.json())
                 .then(json => (this.serverInfo = json))
-
-            fetch(`${this.serverURL}/book`)
-                .then(r => r.json())
-                .then(json => {
-                    this.books = json
-                })
-                .catch(e => console.warn(e))
         },
         methods: {
             login(username, password) {
@@ -184,16 +178,41 @@
                 })
                     .then(r => r.json())
                     .then(json => {
-                        console.log(json);
-                        this.loggedIn = true
+                        this.accessToken = json.access_token
+                        this.loadBooks()
                     })
                     .catch(e => console.warn(e));
             },
+            logout() {
+                this.accessToken = null;
+            },
+            loadBooks() {
+                fetch(`${this.serverURL}/api/book`, {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(r => {
+                        if (r.status === 200) {
+                            return r.json()
+                        } else {
+                            throw new Error("Unable to load books")
+                        }
+                    })
+                    .then(json => {
+                        this.books = json
+                    })
+                    .catch(e => console.warn(e))
+            },
             addBook(book) {
-                fetch(`${this.serverURL}/book/`,
+                fetch(`${this.serverURL}/api/book/`,
                     {
                         method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify(book)
                     })
                     .then(r => {
@@ -204,7 +223,13 @@
                     .catch(e => console.error(e))
             },
             removeBook(id) {
-                fetch(`${this.serverURL}/book/${id}`, {method: 'delete'})
+                fetch(`${this.serverURL}/api/book/${id}`, {
+                    method: 'delete',
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
                     .then(r => {
                         if (r.status === 204) this.books = this.books.filter(b => b.id !== id)
                     })

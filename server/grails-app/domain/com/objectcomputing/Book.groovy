@@ -3,8 +3,8 @@ package com.objectcomputing
 import grails.plugin.springsecurity.annotation.Secured
 import grails.rest.Resource
 
-@Secured('isAnonymous()')
-@Resource
+@Secured('ROLE_USER')
+@Resource(uri = "/api/book")
 class Book {
 
     String title

@@ -1,5 +1,5 @@
 <template>
-    <div style="margin: 0 auto; width: 320px; text-align: center">
+    <form @submit.prevent="submit()" style="margin: 0 auto; width: 320px; text-align: center">
         <div class="title cell">
             <label>Username</label>
             <input v-model="username" type="text"/>
@@ -10,9 +10,9 @@
             <input v-model="password" type="password"/>
         </div>
         <div class="save cell">
-            <button @click="submit()">Login</button>
+            <input type="submit" value="Login" />
         </div>
-    </div>
+    </form>
 </template>
 <script>
     export default {
